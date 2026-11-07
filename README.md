@@ -25,7 +25,7 @@ npm run dev
 ```
 
 - `ANTHROPIC_API_KEY` 가 없으면 **데모 모드**: 질문과 단어가 겹치는 문단을 찾아 인용만 합니다.
-- `SUPABASE_URL` 이 없으면 `.data/db.json` 파일에 저장합니다 (로컬 전용).
+- `SUPABASE_URL` 이 없으면 이 컴퓨터의 SQLite 파일(`.data/interactiview.db`)에 저장합니다. Node 22.13 이상이 필요합니다.
 - 들어가기: `http://localhost:3000/join?code=<INVITE_CODE>`
 - 관리 페이지: `http://localhost:3000/admin?key=<ADMIN_KEY>`
 
@@ -34,7 +34,33 @@ npm test         # 원고 파서, 인용 검증, 링크 토큰 테스트
 npm run build
 ```
 
-## 배포 (Vercel + Supabase)
+## 내 컴퓨터에서 운영하기 (베타 기본 방식)
+
+서버는 내 컴퓨터에서 돌리고, Tailscale Funnel 로 `https://<컴퓨터이름>.<tailnet>.ts.net` 주소를 공개합니다. 참여자는 앱 설치나 가입 없이 이 주소로 들어옵니다. Vercel, Supabase 는 필요 없습니다.
+
+1. **준비**: Node.js 22.13 이상, Tailscale 설치 후 로그인.
+2. **설정**: `cp .env.example .env.local` 후 값 채우기. 꼭 필요한 값은 `ANTHROPIC_API_KEY`, `INVITE_CODE`, `ADMIN_KEY`, `ANSWER_SECRET`, `SITE_URL` 입니다. (Claude 콘솔에서 월 사용 한도를 걸어두세요.)
+3. **실행**
+   ```bash
+   npm install
+   npm run serve          # 빌드 후 3000번 포트로 실행
+   ```
+4. **공개**: 다른 터미널에서
+   ```bash
+   tailscale funnel --bg 3000
+   tailscale funnel status   # 공개 주소 확인
+   ```
+   처음이면 관리 콘솔에서 Funnel 허용을 묻습니다. 나온 주소를 `.env.local` 의 `SITE_URL` 에 넣고 서버를 다시 켜세요.
+5. **공유**: `https://<주소>/join?code=<INVITE_CODE>` 를 스터디 단톡방에 올리면 끝입니다. 관리 페이지는 `https://<주소>/admin?key=<ADMIN_KEY>`.
+
+운영 중 알아둘 것
+- 컴퓨터가 잠자기에 들어가면 서비스도 멈춥니다. 전원 연결 + 잠자기 끄기 (macOS: `caffeinate -dis npm start`).
+- 모든 기록은 `.data/interactiview.db` 파일 하나에 있습니다. 이 파일을 복사해두면 백업입니다.
+- 주간 메일: `RESEND_API_KEY`, `MAIL_FROM`, `INTERVIEWEE_EMAILS` 를 넣으면 서버가 매주 월요일 09:00(KST)에 알아서 보냅니다. 그 시간에 컴퓨터가 꺼져 있었으면 켜진 뒤 보냅니다. 메일을 안 쓰면 `/api/cron/weekly?key=<ADMIN_KEY>&dry=1` 에서 내용을 보고 직접 전달해도 됩니다. 관리 페이지의 인터뷰이별 답변 링크도 그대로 보내면 됩니다.
+- 원고를 바꾸면 서버를 다시 켜세요 (`npm run serve`).
+- 끄기: `tailscale funnel --bg 3000 off` 또는 `tailscale funnel reset`.
+
+## 다른 방식: Vercel + Supabase
 
 1. **Supabase**: 새 프로젝트 생성 → SQL Editor 에 `supabase/schema.sql` 붙여넣고 실행 → Project Settings > API 에서 URL 과 `service_role` 키 복사.
 2. **Claude API**: https://console.anthropic.com 에서 API 키 발급. 월 사용 한도를 걸어두세요.
@@ -56,6 +82,7 @@ npm run build
 | `lib/prompt.ts` | 인터뷰이 목소리 규칙과 원고가 들어가는 프롬프트 |
 | `lib/ai.ts` | Claude 호출 (대화: Claude Opus 5.5, 보조: Claude Haiku 5.5) |
 | `lib/quotes.ts` | 인용문 원고 대조 |
-| `lib/store/` | Supabase / 로컬 파일 저장소 |
+| `lib/store/` | SQLite(기본) / Supabase 저장소 |
+| `lib/weekly.ts`, `lib/scheduler.ts` | 주간 메일 내용, 컴퓨터 운영 시 월요일 예약 |
 
 원고가 사람당 8,000자 정도라 벡터 검색 없이 그 사람의 원고 전체를 프롬프트에 넣고 프롬프트 캐시를 씁니다.

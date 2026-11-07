@@ -80,7 +80,7 @@ export default async function AdminPage() {
     <main className="wrap">
       <h1>관리 페이지</h1>
       <p className="small muted">
-        저장소: {usingSupabase ? "Supabase" : "로컬 파일(.data/db.json, 배포용 아님)"} · AI: {aiEnabled ? "Claude API" : "데모 모드(키 없음)"}
+        저장소: {usingSupabase ? "Supabase" : "이 컴퓨터의 SQLite 파일(.data/interactiview.db)"} · AI: {aiEnabled ? "Claude API" : "데모 모드(키 없음)"}
       </p>
 
       <div className="stats" style={{ marginTop: 16 }}>
