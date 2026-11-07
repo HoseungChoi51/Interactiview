@@ -13,6 +13,11 @@ describe("verifyCitations", () => {
     expect(out).toEqual([{ passageId: "a-q1", question: "첫 질문", quote: "대학교 3학년 때 처음으로 시간 가는 줄 모르는 경험을 했습니다." }]);
   });
 
+  it("removes markdown bold from the stored quote", () => {
+    const out = verifyCitations([{ passage_id: "a-q1", quote: "대학교 3학년 때 **처음으로** 시간 가는 줄" }], passages);
+    expect(out[0].quote).toBe("대학교 3학년 때 처음으로 시간 가는 줄");
+  });
+
   it("drops invented quotes", () => {
     expect(verifyCitations([{ passage_id: "a-q1", quote: "저는 디자인을 정말 사랑했어요." }], passages)).toEqual([]);
   });

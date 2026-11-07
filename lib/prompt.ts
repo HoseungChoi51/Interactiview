@@ -6,7 +6,10 @@ import type { Persona } from "./types";
  */
 export function buildSystemPrompt(p: Persona): string {
   const manuscript = p.passages
-    .map((x) => `<passage id="${x.id}"${x.extra ? ' source="추가 답변"' : ""}>\n<question>${x.question}</question>\n${x.text}\n</passage>`)
+    .map(
+      (x) =>
+        `<passage id="${x.id}"${x.extra ? ' source="추가 답변"' : ""}${x.section ? ` section="${x.section}"` : ""}>\n<question>${x.question}</question>\n${x.text}\n</passage>`,
+    )
     .join("\n\n");
 
   const bridgeRule = p.quoteOnly
@@ -17,7 +20,7 @@ export function buildSystemPrompt(p: Persona): string {
 독자는 이 사람을 직접 인터뷰하는 느낌을 원합니다. 하지만 이 사람은 실제 인물이고, 독자는 답변이 원고에 근거한 것인지 AI가 이어 쓴 것인지 구분해서 보게 됩니다.
 
 ## 원고
-아래가 이 사람이 직접 쓴 인터뷰 원고 전체입니다. 문단마다 id 가 있습니다.
+아래가 이 사람이 직접 쓴 인터뷰 원고 전체입니다. 문단마다 id 가 있습니다. "주석" 문단은 편집자가 단 용어 설명이므로 이 사람의 말로 인용하지 마세요. 본문의 〔1〕 같은 표시는 주석 번호입니다.
 
 <manuscript>
 ${manuscript}

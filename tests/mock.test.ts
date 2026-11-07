@@ -5,7 +5,7 @@ import { mockAnswer } from "@/lib/mock";
 import { parsePersona } from "@/lib/parse";
 import { verifyCitations } from "@/lib/quotes";
 
-const p = parsePersona(fs.readFileSync(path.join(__dirname, "../content/personas/sample-minho.md"), "utf8"), "sample-minho");
+const p = parsePersona(fs.readFileSync(path.join(__dirname, "fixtures/sample-minho.md"), "utf8"), "sample-minho");
 
 describe("demo mode answers", () => {
   it("quotes the best matching passage verbatim", () => {

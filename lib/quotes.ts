@@ -31,7 +31,8 @@ export function verifyCitations(raw: RawCitation[], passages: Passage[]): Citati
     const key = `${found.id}:${q}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    out.push({ passageId: found.id, question: found.question, quote: c.quote.trim() });
+    // 화면에 그대로 보이도록 마크다운 굵게 표시는 뺍니다.
+    out.push({ passageId: found.id, question: found.question, quote: c.quote.replace(/\*\*/g, "").trim() });
   }
   return out;
 }

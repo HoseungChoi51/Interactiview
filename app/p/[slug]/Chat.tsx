@@ -138,7 +138,7 @@ export default function Chat({ slug, name, greeting, samples, initial, initialRe
               <div className="bubble">{m.content}</div>
               {m.citations.map((c, i) => (
                 <Link key={i} href={`/p/${slug}/read#${c.passageId}`} className="qcard serif">
-                  <div className="q">원고 · {c.question}</div>“{c.quote}”
+                  <div className="q">원고 · {c.question}</div>“{c.quote.replace(/\*\*/g, "").replace(/\s*〔\d+〕/g, "")}”
                 </Link>
               ))}
               <div className="reacts">

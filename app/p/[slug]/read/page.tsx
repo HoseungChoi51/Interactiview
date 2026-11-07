@@ -35,8 +35,10 @@ export default async function ReadPage({ params }: { params: Promise<{ slug: str
         <div className="muted small" style={{ fontFamily: "inherit" }}>
           {p.role}
         </div>
-        {p.passages.map((x) => (
+        {p.tagline && <p style={{ fontSize: 20, marginTop: 16 }}>{p.tagline}</p>}
+        {p.passages.map((x, i) => (
           <section key={x.id} id={x.id} className={heat[x.id] >= 2 ? "hot" : ""}>
+            {x.section && x.section !== p.passages[i - 1]?.section && <h2 style={{ marginTop: 56 }}>{x.section}</h2>}
             {!x.id.endsWith("-intro") && (
               <h3>
                 {x.question}

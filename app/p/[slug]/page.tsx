@@ -9,11 +9,11 @@ import Chat from "./Chat";
 
 export const dynamic = "force-dynamic";
 
-/** 원고의 자기소개 첫 문단을 첫 인사로 씁니다. */
-function greetingFrom(intro: string | undefined, name: string): string {
-  const paras = (intro ?? "").split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
-  const hello = paras.find((p) => /안녕|입니다|이에요|예요/.test(p) && !/예시입니다/.test(p)) ?? paras[0];
-  return hello ?? `안녕하세요, ${name}입니다. 궁금한 걸 물어보세요.`;
+/** 원고의 자기소개 첫 문단(없으면 한 줄 소개)으로 첫 인사를 만듭니다. */
+function greetingFrom(intro: string | undefined, name: string, tagline: string): string {
+  const first = (intro ?? "").split(/\n\s*\n/).map((s) => s.trim()).find(Boolean);
+  const body = (first ?? (tagline ? `“${tagline}”라는 이야기를 썼어요.` : "")).replace(/\*\*/g, "").replace(/〔\d+〕/g, "");
+  return `안녕하세요, ${name}입니다. ${body} 궁금한 걸 편하게 물어보세요.`.replace(/\s+/g, " ");
 }
 
 export default async function PersonaPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -47,7 +47,7 @@ export default async function PersonaPage({ params }: { params: Promise<{ slug: 
         <Chat
           slug={slug}
           name={p.name.replace(/\s*\(.*\)\s*$/, "")}
-          greeting={greetingFrom(p.passages.find((x) => x.id.endsWith("-intro"))?.text, p.name)}
+          greeting={greetingFrom(p.passages.find((x) => x.id.endsWith("-intro"))?.text, p.name.replace(/\s*\(.*\)\s*$/, ""), p.tagline)}
           samples={p.sampleQuestions.slice(0, 3)}
           initial={conv}
           initialReactions={byMsg}
